@@ -1,0 +1,9 @@
+CLAUDE.md
+AGENTS.md
+*.tmp
+*~
+*.swp
+*.bak
+.DS_Store
+__pycache__/
+*.log
