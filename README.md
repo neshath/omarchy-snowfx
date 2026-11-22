@@ -26,39 +26,41 @@ None beyond Omarchy's built-in stack (Omarchy 4.5 shell on Quickshell/Qt 6, Hypr
 
 ## Settings
 
-Stored in `~/.config/omarchy/snowfx.json`: `enabled`, `drifts` (window snow), `density` (buildup, 0.1–1), `windX` (-1 W … 1 E), `particleAmount` (0.1–2.5), `particleSize` (0.5–2.2), `driftStyle` (`flat` | `sculpted`), `workspaceGust`, `bottomBank`, `fps` (30 or 60).
+Stored in `~/.config/omarchy/snowfx.json`: `enabled`, `drifts` (window snow), `density` (buildup, 0.1–1), `windX` (-1 W … 1 E), `particleAmount` (0.1–2.5), `particleSize` (0.5–2.2), `driftStyle` (`flat` | `sculpted`), `workspaceGust`, `bottomBank`, `snowman` (optional, off by default), `snowmanSwing`, `fps` (30 or 60).
 
 ## IPC / keybinds
 
-    qs ipc call snowfx toggle
-    qs ipc call snowfx setWind <x -1..1> <amount 0.1..2.5>
-    qs ipc call snowfx setAmount <0.1-2.5>
-    qs ipc call snowfx setSize <0.5-2.2>
-    qs ipc call snowfx setFlow <amount>      # alias of setAmount
-    qs ipc call snowfx windLeft              # nudge wind -0.15 (west)
-    qs ipc call snowfx windRight             # nudge wind +0.15 (east)
-    qs ipc call snowfx nudgeWind <delta>     # e.g. -0.05
-    qs ipc call snowfx resetWind
-    qs ipc call snowfx clearSnow             # silently reset all accumulation
-    qs ipc call snowfx shake                 # snowglobe shake: bursts + gust, accumulation to 0
-    qs ipc call snowfx gust                  # a brief random wind gust
-    qs ipc call snowfx setDriftStyle <flat|sculpted>
-    qs ipc call snowfx status
+    omarchy-shell snowfx toggle
+    omarchy-shell snowfx setWind <x -1..1> <amount 0.1..2.5>
+    omarchy-shell snowfx setAmount <0.1-2.5>
+    omarchy-shell snowfx setSize <0.5-2.2>
+    omarchy-shell snowfx setSnowman <true|false>       # optional snowman on the full bottom bank
+    omarchy-shell snowfx setSnowmanSwing <true|false>  # let the snowman sway
+    omarchy-shell snowfx setFlow <amount>      # alias of setAmount
+    omarchy-shell snowfx windLeft              # nudge wind -0.15 (west)
+    omarchy-shell snowfx windRight             # nudge wind +0.15 (east)
+    omarchy-shell snowfx nudgeWind <delta>     # e.g. -0.05
+    omarchy-shell snowfx resetWind
+    omarchy-shell snowfx clearSnow             # silently reset all accumulation
+    omarchy-shell snowfx shake                 # snowglobe shake: bursts + gust, accumulation to 0
+    omarchy-shell snowfx gust                  # a brief random wind gust
+    omarchy-shell snowfx setDriftStyle <flat|sculpted>
+    omarchy-shell snowfx status
 
 In the popover: drag the pad, or use ← / → (wind), ↑ / ↓ (amount), Shift for fine steps, `0` / `R` to reset.
 
 Optional `~/.config/hypr/bindings.lua` entries (pick keys that are free in your setup; SnowFx never edits your Hyprland config):
 
-    o.bind("SUPER + CTRL + ALT + Left", "Snow wind west", hl.dsp.exec_cmd("qs ipc call snowfx windLeft"), { repeating = true })
-    o.bind("SUPER + CTRL + ALT + Right", "Snow wind east", hl.dsp.exec_cmd("qs ipc call snowfx windRight"), { repeating = true })
-    o.bind("SUPER + CTRL + ALT + S", "Toggle snow", hl.dsp.exec_cmd("qs ipc call snowfx toggle"))
-    o.bind("SUPER + CTRL + ALT + H", "Shake snow", hl.dsp.exec_cmd("qs ipc call snowfx shake"))
-    o.bind("SUPER + CTRL + ALT + C", "Clear snow", hl.dsp.exec_cmd("qs ipc call snowfx clearSnow"))
+    o.bind("SUPER + CTRL + ALT + Left", "Snow wind west", hl.dsp.exec_cmd("omarchy-shell snowfx windLeft"), { repeating = true })
+    o.bind("SUPER + CTRL + ALT + Right", "Snow wind east", hl.dsp.exec_cmd("omarchy-shell snowfx windRight"), { repeating = true })
+    o.bind("SUPER + CTRL + ALT + S", "Toggle snow", hl.dsp.exec_cmd("omarchy-shell snowfx toggle"))
+    o.bind("SUPER + CTRL + ALT + H", "Shake snow", hl.dsp.exec_cmd("omarchy-shell snowfx shake"))
+    o.bind("SUPER + CTRL + ALT + C", "Clear snow", hl.dsp.exec_cmd("omarchy-shell snowfx clearSnow"))
 
 Legacy `hyprland.conf` equivalent (`binde` repeats while held):
 
-    binde = SUPER CTRL ALT, Left, exec, qs ipc call snowfx windLeft
-    binde = SUPER CTRL ALT, Right, exec, qs ipc call snowfx windRight
+    binde = SUPER CTRL ALT, Left, exec, omarchy-shell snowfx windLeft
+    binde = SUPER CTRL ALT, Right, exec, omarchy-shell snowfx windRight
 
 ## Shaders
 

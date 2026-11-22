@@ -263,6 +263,8 @@ Panel {
 
         ToggleRow { label: "Window snow"; on: store.drifts; onToggled: store.setDrifts(!store.drifts) }
         ToggleRow { label: "Bottom bank"; on: store.bottomBank; onToggled: store.setBottomBank(!store.bottomBank) }
+        ToggleRow { label: "Snowman"; on: store.snowman; onToggled: store.setSnowman(!store.snowman) }
+        ToggleRow { visible: store.snowman; label: "Snowman swing"; on: store.snowmanSwing; onToggled: store.setSnowmanSwing(!store.snowmanSwing) }
         ToggleRow { label: "Workspace gust"; on: store.workspaceGust; onToggled: store.setWorkspaceGust(!store.workspaceGust) }
         Slim {
           width: parent.width

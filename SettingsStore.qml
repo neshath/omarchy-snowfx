@@ -17,13 +17,20 @@ Item {
   property string driftStyle: "flat"  // "flat" | "sculpted"
   property bool workspaceGust: true   // wind gust on workspace switch
   property bool bottomBank: true      // thin snowbank along each monitor's bottom edge
+  property bool snowman: false        // optional: a snowman builds itself on the full bottom bank
+  property bool snowmanSwing: false   // the snowman sways gently back and forth
   property int fps: 30                // 30 | 60
 
   property var recentWrites: []       // our own recent snapshots; late watcher events must not revert newer state
+  property double lastWriteMs: 0      // recentWrites only guards for a short window after our own write
 
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, Number(v))) }
 
   function applyJson(text) {
+    // A late echo of our own write arrives within milliseconds. Outside that window an identical file is a
+    // genuine change from another store (service / popover / IPC) and must be applied, otherwise the popover
+    // shows stale values when the settings return to a state it wrote earlier.
+    if (Date.now() - lastWriteMs > 1500) recentWrites = []
     if (recentWrites.indexOf(text) >= 0 || saveTimer.running) return
     var j
     try { j = JSON.parse(text) } catch (e) { return }
@@ -37,6 +44,8 @@ Item {
     if (j.driftStyle === "flat" || j.driftStyle === "sculpted") driftStyle = j.driftStyle
     if (typeof j.workspaceGust === "boolean") workspaceGust = j.workspaceGust
     if (typeof j.bottomBank === "boolean") bottomBank = j.bottomBank
+    if (typeof j.snowman === "boolean") snowman = j.snowman
+    if (typeof j.snowmanSwing === "boolean") snowmanSwing = j.snowmanSwing
     if (isFinite(j.fps)) fps = Number(j.fps) <= 30 ? 30 : 60
   }
 
@@ -44,7 +53,7 @@ Item {
     function r(v) { return Math.round(v * 100) / 100 }
     return JSON.stringify({ enabled: enabled, drifts: drifts, density: r(density),
       windX: r(windX), particleAmount: r(particleAmount), particleSize: r(particleSize), driftStyle: driftStyle,
-      workspaceGust: workspaceGust, bottomBank: bottomBank, fps: fps }, null, 2) + "\n"
+      workspaceGust: workspaceGust, bottomBank: bottomBank, snowman: snowman, snowmanSwing: snowmanSwing, fps: fps }, null, 2) + "\n"
   }
 
   function save() { saveTimer.restart() }
@@ -57,6 +66,8 @@ Item {
   }
   function setWorkspaceGust(v) { workspaceGust = !!v; save() }
   function setBottomBank(v) { bottomBank = !!v; save() }
+  function setSnowman(v) { snowman = !!v; save() }
+  function setSnowmanSwing(v) { snowmanSwing = !!v; save() }
   function setDensity(v) { density = clamp(v, 0.1, 1); save() }
   // y is the particle amount (0.1 .. 2.5), the pad's vertical axis.
   function setWind(x, y) {
@@ -86,10 +97,11 @@ Item {
 
   Timer {
     id: saveTimer
-    interval: 150
+    interval: 30
     onTriggered: {
       var snap = root.snapshot()
       root.recentWrites = root.recentWrites.concat([snap]).slice(-8)
+      root.lastWriteMs = Date.now()
       file.setText(snap)
     }
   }
