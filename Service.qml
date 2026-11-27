@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import qs.Commons
 
 // Always-on SnowFx service: per monitor, one click-through Bottom layer (falling
@@ -86,6 +87,37 @@ Item {
   property var reg: ({})                      // addr -> {a, x, y, w, h, mon, vis}
   property var pendingClose: ({})             // addrs named by a closewindow event
   property real bank: 0                       // bottom snowbank 0..1
+  property real wallpaperAcc: 0               // snow on wallpaper contours 0..1
+
+  // Wallpaper snow: the current wallpaper is the target of Omarchy's background symlink.
+  property string wallpaper: ""
+  readonly property string wallpaperDir: Quickshell.env("HOME") + "/.local/state/omarchy/current"
+  readonly property bool watchWallpaper: store.enabled && store.wallpaperSnow
+  onWatchWallpaperChanged: if (!watchWallpaper) wallpaper = ""
+  // Atomic link replacements are directory events. Read once after the watch is armed,
+  // then coalesce events (unlink + rename) before resolving the new target.
+  Process {
+    id: wpWatch
+    running: root.watchWallpaper
+    command: ["env", "LC_ALL=C", "inotifywait", "-m", "-e", "create,delete,moved_to,moved_from", "--format", "%f", root.wallpaperDir]
+    stdout: SplitParser { onRead: name => { if (name === "background" || name === "theme.generation") refreshWallpaper.restart() } }
+    stderr: SplitParser { onRead: line => { if (line === "Watches established.") refreshWallpaper.restart() } }
+    onExited: if (root.watchWallpaper) retryWatch.restart()
+  }
+  Timer { id: retryWatch; interval: 3000; onTriggered: if (root.watchWallpaper) wpWatch.running = true }
+  Timer {
+    id: refreshWallpaper
+    interval: 30
+    onTriggered: if (root.watchWallpaper) {
+      if (wpProc.running) restart(); else wpProc.running = true
+    }
+  }
+  Process {
+    id: wpProc
+    command: ["readlink", "-e", root.wallpaperDir + "/background"]
+    stdout: StdioCollector { onStreamFinished: if (root.watchWallpaper) root.wallpaper = String(text).trim() }
+  }
+  onWallpaperChanged: root.wallpaperAcc = 0
 
   // Shake-off bursts: fixed ring of 6 slots {mon, x, y, w, amount, wind, seed, t0}.
   readonly property int burstSlots: 6
@@ -299,6 +331,7 @@ Item {
   function clearSnow() {
     for (var a in root.reg) root.reg[a].a = 0
     root.bank = 0
+    root.wallpaperAcc = 0
     publishAccum()
   }
 
@@ -365,6 +398,7 @@ Item {
         if (changed) root.publishAccum()
       }
       if (store.bottomBank && root.bank < 1) root.bank = Math.min(1, root.bank + rate * dt / 2.5)
+      if (store.wallpaperSnow && root.wallpaperAcc < 1) root.wallpaperAcc = Math.min(1, root.wallpaperAcc + rate * dt / 1.5)
     }
   }
 
@@ -386,6 +420,7 @@ Item {
     function setDriftStyle(style: string): void { store.setDriftStyle(style) }
     function setSnowman(on: bool): void { store.setSnowman(on) }
     function setSnowmanSwing(on: bool): void { store.setSnowmanSwing(on) }
+    function setWallpaperSnow(on: bool): void { store.setWallpaperSnow(on) }
     function status(): string { return store.snapshot() }
   }
 
