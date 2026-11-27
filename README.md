@@ -11,6 +11,7 @@ Atmospheric snow for the Omarchy desktop, drawn entirely by GPU shaders (no text
 - **Gradual accumulation** – each window builds snow over ~30 s (faster with higher density/snowfall). Drift style is `flat` (level layer, rounded shoulders) or `sculpted` (wind-carved ridges leaning downwind).
 - **Shake-off physics** – closing a snowy window drops its snow as falling clumps and powder; dragging or resizing a window sheds 35–55% of it. **Shake** (button or IPC) sheds everything like a snowglobe.
 - **Workspace whoosh** – switching workspaces kicks up a brief wind gust. An optional thin snowbank builds along each monitor's bottom edge.
+- **Wallpaper snow** – snow also settles on the wallpaper itself: ridgelines, horizons, cloud tops and rooftops are found once per wallpaper (plain JS edge tracing on a small thumbnail) and slowly gather a soft layer behind your windows. Undersides of clouds and logos stay clear; switching wallpapers starts fresh, Shake brushes it off.
 - Click-through on every monitor, tints itself from the active Omarchy theme, and drops to 0 FPS when disabled or when a monitor has a fullscreen window.
 
 ## Install / remove
@@ -22,11 +23,11 @@ Then add the snowflake widget to your bar from the shell's widget settings.
 
 ## Requirements
 
-None beyond Omarchy's built-in stack (Omarchy 4.5 shell on Quickshell/Qt 6, Hyprland). Shaders ship precompiled, so there is nothing to build or install.
+None beyond Omarchy's built-in stack (Omarchy 4.5 shell on Quickshell/Qt 6, Hyprland). Wallpaper snow uses `inotifywait` from Omarchy's base `inotify-tools` to notice wallpaper changes. Shaders ship precompiled, so there is nothing to build or install.
 
 ## Settings
 
-Stored in `~/.config/omarchy/snowfx.json`: `enabled`, `drifts` (window snow), `density` (buildup, 0.1–1), `windX` (-1 W … 1 E), `particleAmount` (0.1–2.5), `particleSize` (0.5–2.2), `driftStyle` (`flat` | `sculpted`), `workspaceGust`, `bottomBank`, `snowman` (optional, off by default), `snowmanSwing`, `fps` (30 or 60).
+Stored in `~/.config/omarchy/snowfx.json`: `enabled`, `drifts` (window snow), `density` (buildup, 0.1–1), `windX` (-1 W … 1 E), `particleAmount` (0.1–2.5), `particleSize` (0.5–2.2), `driftStyle` (`flat` | `sculpted`), `workspaceGust`, `bottomBank`, `wallpaperSnow`, `snowman` (optional, off by default), `snowmanSwing`, `fps` (30 or 60).
 
 ## IPC / keybinds
 
@@ -36,6 +37,7 @@ Stored in `~/.config/omarchy/snowfx.json`: `enabled`, `drifts` (window snow), `d
     omarchy-shell snowfx setSize <0.5-2.2>
     omarchy-shell snowfx setSnowman <true|false>       # optional snowman on the full bottom bank
     omarchy-shell snowfx setSnowmanSwing <true|false>  # let the snowman sway
+    omarchy-shell snowfx setWallpaperSnow <true|false> # snow settling on the wallpaper
     omarchy-shell snowfx setFlow <amount>      # alias of setAmount
     omarchy-shell snowfx windLeft              # nudge wind -0.15 (west)
     omarchy-shell snowfx windRight             # nudge wind +0.15 (east)

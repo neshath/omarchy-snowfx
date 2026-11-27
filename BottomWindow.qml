@@ -29,6 +29,22 @@ PanelWindow {
     visible: opacity > 0.001
     Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.InOutQuad } }
 
+    // Snow settling on contours found in the wallpaper (behind every window).
+    WallpaperLedges {
+      id: wpLedges
+      source: win.svc.settings.wallpaperSnow ? win.svc.wallpaper : ""
+      screenWidth: win.width
+      screenHeight: win.height
+    }
+    SnowContours {
+      width: parent.width                 // y and height follow the contours (see SnowContours)
+      contours: wpLedges.ledges
+      acc: win.svc.wallpaperAcc
+      tint: win.svc.tint
+      shade: win.svc.shade
+      tintMix: win.svc.tintMix
+    }
+
     SnowLayer { anchors.fill: parent; svc: win.svc; kind: 0 }
   }
 }

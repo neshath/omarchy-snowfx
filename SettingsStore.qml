@@ -17,6 +17,7 @@ Item {
   property string driftStyle: "flat"  // "flat" | "sculpted"
   property bool workspaceGust: true   // wind gust on workspace switch
   property bool bottomBank: true      // thin snowbank along each monitor's bottom edge
+  property bool wallpaperSnow: true   // snow settles on ridges and other top edges found in the wallpaper
   property bool snowman: false        // optional: a snowman builds itself on the full bottom bank
   property bool snowmanSwing: false   // the snowman sways gently back and forth
   property int fps: 30                // 30 | 60
@@ -44,6 +45,7 @@ Item {
     if (j.driftStyle === "flat" || j.driftStyle === "sculpted") driftStyle = j.driftStyle
     if (typeof j.workspaceGust === "boolean") workspaceGust = j.workspaceGust
     if (typeof j.bottomBank === "boolean") bottomBank = j.bottomBank
+    if (typeof j.wallpaperSnow === "boolean") wallpaperSnow = j.wallpaperSnow
     if (typeof j.snowman === "boolean") snowman = j.snowman
     if (typeof j.snowmanSwing === "boolean") snowmanSwing = j.snowmanSwing
     if (isFinite(j.fps)) fps = Number(j.fps) <= 30 ? 30 : 60
@@ -53,7 +55,7 @@ Item {
     function r(v) { return Math.round(v * 100) / 100 }
     return JSON.stringify({ enabled: enabled, drifts: drifts, density: r(density),
       windX: r(windX), particleAmount: r(particleAmount), particleSize: r(particleSize), driftStyle: driftStyle,
-      workspaceGust: workspaceGust, bottomBank: bottomBank, snowman: snowman, snowmanSwing: snowmanSwing, fps: fps }, null, 2) + "\n"
+      workspaceGust: workspaceGust, bottomBank: bottomBank, wallpaperSnow: wallpaperSnow, snowman: snowman, snowmanSwing: snowmanSwing, fps: fps }, null, 2) + "\n"
   }
 
   function save() { saveTimer.restart() }
@@ -66,6 +68,7 @@ Item {
   }
   function setWorkspaceGust(v) { workspaceGust = !!v; save() }
   function setBottomBank(v) { bottomBank = !!v; save() }
+  function setWallpaperSnow(v) { wallpaperSnow = !!v; save() }
   function setSnowman(v) { snowman = !!v; save() }
   function setSnowmanSwing(v) { snowmanSwing = !!v; save() }
   function setDensity(v) { density = clamp(v, 0.1, 1); save() }
